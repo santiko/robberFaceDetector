@@ -1,4 +1,4 @@
-package com.arvin.facedetect;
+package org.tiko.facedetector;
 
 import static java.awt.Frame.NORMAL;
 import java.awt.Graphics;
@@ -22,22 +22,17 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
-/**
- *
- * @author Arvind Mahto
- * @Email mahto.arvin@gmail.com
- */
 public class FaceDetect extends javax.swing.JFrame {
 
     private thread thread = null;
     VideoCapture cap = null;
-    Mat frame = new Mat();
-    MatOfRect faces = new MatOfRect();
+    //Mat frame = new Mat();
+    MatOfRect wajah = new MatOfRect();
     MatOfByte mob = new MatOfByte();
-    String fileExten = ".png";
+    String ekstensiFile = ".png";
     CascadeClassifier faceDetect = new CascadeClassifier("haarcascade_frontalface_alt.xml");
 
-    Mat matrix = new Mat();
+    Mat matriks = new Mat();
 
     class thread implements Runnable {
 
@@ -47,90 +42,34 @@ public class FaceDetect extends javax.swing.JFrame {
                 while (true) {
                     if (cap.isOpened()) {
                         try {
-                            cap.retrieve(matrix);
+                            cap.retrieve(matriks);
                             Graphics g = jPanel1.getGraphics();
-                            faceDetect.detectMultiScale(matrix, faces);
-                            System.out.println(String.format("Total faces Detected: %d", faces.toArray().length));
+                            faceDetect.detectMultiScale(matriks, wajah);
+                            System.out.println(String.format("Jumlah wajah terdeteksi: %d", wajah.toArray().length));
 
-                            String text = String.format("Total faces Detected: %d", faces.toArray().length);
+                            String text = String.format("Jumlah wajah terdeteksi: %d", wajah.toArray().length);
 
-                            Imgproc.putText(matrix, text, new Point(15, 25
+                            Imgproc.putText(matriks, text, new Point(15, 25
                             ), NORMAL, 0.7, new Scalar(255, 255, 255), 2);
 
-                            // Imgproc.putText(matrix, Date, new Point(15, 35
+                            // Imgproc.putText(matriks, Date, new Point(15, 35
                             // ), Core.FONT_HERSHEY_COMPLEX_SMALL, 0.5, new Scalar(0, 255, 0));
-                            for (Rect rect : faces.toArray()) {
-                                Imgproc.rectangle(matrix,
+                            for (Rect rect : wajah.toArray()) {
+                                Imgproc.rectangle(matriks,
                                         new Point(rect.x, rect.y), new Point(
                                                 rect.x + rect.width, rect.y
                                                 + rect.height),
                                         new Scalar(0, 255, 0), 2);
-                                Imgproc.putText(matrix, String.format("%d x %d", rect.width, rect.height), new Point(rect.x + 30, rect.y + rect.height + 20
+                                Imgproc.putText(matriks, String.format("%d x %d", rect.width, rect.height), new Point(rect.x + 30, rect.y + rect.height + 20
                                 ), NORMAL, 0.5, new Scalar(0, 255, 0));
                                 // if(rect.x)
-                                Imgproc.putText(matrix, "One face detected", new Point(rect.x, rect.y - 10
+                                Imgproc.putText(matriks, "Terdeteksi 1 wajah", new Point(rect.x, rect.y - 10
                                 ), NORMAL, 0.5, new Scalar(0, 255, 0));
 
-                                //  Imgproc.putText(matrix, String.format("%d feet away from cam",( 350/((rect.height)))), new Point(rect.x, rect.y + rect.height+40
-                                // ), NORMAL, 0.5, new Scalar(0, 255,0));
+                                Imgproc.putText(matriks, String.format("%d feet dari kamera..", (350 / ((rect.height)))), new Point(rect.x, rect.y + rect.height + 40
+                                ), NORMAL, 0.5, new Scalar(0, 255, 0));
                             }
-
-                            /*  works but not good!
-                            
-                            BufferedImage out; 
-                            byte[] data = new byte[320*240 * (int)matrix.elemSize()];
-                            int type;
-                            matrix.get(0, 0,data);
-                            
-                            if(matrix.channels() == 1){
-                                type = BufferedImage.TYPE_BYTE_GRAY;
-                            }
-                            else{
-                                type = BufferedImage.TYPE_3BYTE_BGR;
-                            }
-                            out = new BufferedImage(320,240,type);
-                            
-                            out.getRaster().setDataElements(0,0,320,240,data);*/
- /*BufferedImage buff = null ;
-                        if(matrix!=null){
-                            int cols = matrix.cols();
-                            int rows = matrix.rows();
-                            int elemSize = (int) matrix.elemSize();
-                            byte[] data = new byte[cols*rows*elemSize];
-                            int type = 0;
-                            matrix.get(0,0,data);
-                            switch(matrix.channels()){
-                                case 1:
-                                    type = BufferedImage.TYPE_BYTE_GRAY;
-                                    break;
-                                case 3:
-                                    type = BufferedImage.TYPE_3BYTE_BGR;
-                                    //bgr to rgb
-                                    byte b;
-                                    for(int i = 0;i<data.length;i+=3)
-                                    {
-                                        b= data[i];
-                                        data[i]=data[i+2];
-                                        data[i+2]=b;
-                                    }
-                                    break;
-                                default:
-                                    ;
-                            }
-                            
-                            //Reuse 
-                            
-                            if(buff==null || buff.getWidth()!=cols || buff.getHeight()!=rows || buff.getType()!=type){
-                                buff = new BufferedImage(cols,rows,type);
-                            }
-                            buff.getRaster().setDataElements(0, 0, data);
-                                
-                        }
-                        else{
-                            buff = null;
-                          
-                        }*/
-                            Imgcodecs.imencode(fileExten, matrix, mob);
+                            Imgcodecs.imencode(ekstensiFile, matriks, mob);
                             byte[] byteArray = mob.toArray();
                             BufferedImage buff = null;
 
@@ -143,29 +82,19 @@ public class FaceDetect extends javax.swing.JFrame {
 
                         } catch (IOException ex) {
                             Logger.getLogger(FaceDetect.class.getName()).log(Level.SEVERE, null, ex);
+                            //System.out.println("Ada kesalahan: " + ex.printStackTrace());
                         }
                     }
                 }
-
             }
         }
-
     }
 
-    /**
-     * Creates new form NewJFrame
-     */
     public FaceDetect() {
         start();
         initComponents();
-
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -213,13 +142,12 @@ public class FaceDetect extends javax.swing.JFrame {
 
     public static void main(String args[]) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        System.out.println("Library loaded");
+        System.out.println("Pustaka opencv2.x berhasil dibuka!");
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 FaceDetect frame = new FaceDetect();
                 frame.setTitle("FaceDetect");
-
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             }
